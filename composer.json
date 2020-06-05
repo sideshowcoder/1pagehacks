@@ -1,0 +1,14 @@
+{
+  "name": "sideshowcoder/1pagehacks",
+  "description": "Some one page hacks to solve various problems.",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": "^9.2"
+  },
+  "license": "MIT",
+  "require": {},
+  "scripts": {
+    "server": "php -S localhost:8080",
+    "test": "vendor/bin/phpunit tst"
+  }
+}
