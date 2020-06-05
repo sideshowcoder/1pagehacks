@@ -16,10 +16,9 @@
       return "https://www.gravatar.com/avatar/".$emailHash."?s=".$size;
     };
 
-    if ($_GET["email"])
+    if ($_GET["email"] && $_GET["size"])
     {
-      $size = empty($_GET["size"]) ? 600 : $_GET["size"];
-      $imgUrl = gravatarUrl($_GET["email"], $size);
+      $imgUrl = gravatarUrl($_GET["email"], $_GET["size"]);
       echo '<a download="'.$imgUrl.'" href="'.$imgUrl.'">';
       echo '<img src="'.$imgUrl.'" />';
       echo '</a>';
@@ -28,10 +27,10 @@
     ?>
 
     <form action="/grabatar.php">
-      <label for="email">Gravatar Email</label><br>
+      <label for="email">Gravatar email</label><br>
       <input type="text" autofocus="autofocus" id="email" name="email"><br>
-      <label for="size">Size:</label><br>
-      <input type="number" id="size" name="size"><br>
+      <label for="size">Size in pixel</label><br>
+      <input type="number" id="size" name="size" value="600"><br>
       <input type="submit" value="Fetch Gravatar">
     </form>
 
