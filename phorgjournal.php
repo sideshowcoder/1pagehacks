@@ -5,49 +5,29 @@ session_start();
 require_once "orgile.php";
 
 define("JOURNALDIR", "/Users/pfehre/org/journal/");
-$result = array();
 
 function handlePostRedirect(): void {
-  global $result;
-
   if(!empty($_POST)) {
     $result = newEntry();
+    $_SESSION["msg"] = $result["msg"];
     if($result["success"]) {
-      $_SESSION["msg"] = $result["msg"];
       header( 'HTTP/1.1 303 See Other' );
-      header( 'Location: '.$_SERVER["PHP_SELF"].'/phorgjournal.php' );
+      header( 'Location: '.$_SERVER["PHP_SELF"] );
       exit();
     }
   }
 }
 
-function renderForm(): void {
-  global $result;
-  if(!empty($_POST)) {
-    if(!$result["success"]) {
-      echo $result["msg"];
-      ?>
-      <form method="post">
-        <textarea id="content" name="content" rows="12" cols="70" placeholder="Journal entry, first line becomes title."><?php echo $_POST["content"]; ?></textarea>
-        <input type="submit" value="Add new entry">
-      </form>
-      <?php
-    } else {
-      // handled in handlePostRedirect()
-      // noop
-    }
-  } else {
-    if(isset($_SESSION["msg"])) {
-      echo $_SESSION["msg"];
-      unset($_SESSION["msg"]);
-    }
-    ?>
-    <form method="post">
-      <textarea id="content" name="content" rows="12" cols="70" placeholder="Journal entry, first line becomes title."></textarea>
-      <input type="submit" value="Add new entry">
-    </form>
-    <?php
+function renderMessage(): void {
+  if(isset($_SESSION["msg"])) {
+    echo $_SESSION["msg"];
+    unset($_SESSION["msg"]);
   }
+}
+
+function renderTextArea(): void {
+  $content = isset($_POST["content"]) ? $_POST["content"] : "";
+  echo '<textarea id="content" name="content" rows="12" cols="70" placeholder="Journal entry, first line becomes title.">'.$content.'</textarea>';
 }
 
 function journalFiles(): array {
@@ -139,9 +119,14 @@ handlePostRedirect();
   </head>
 
   <body>
-
     <div id="container">
-      <?php renderForm() ?>
+      <?php renderMessage() ?>
+
+      <form method="post">
+        <?php renderTextArea() ?>
+        <input type="submit" value="Add new entry">
+      </form>
+
       <?php renderJournal(); ?>
     </div>
   </body>
