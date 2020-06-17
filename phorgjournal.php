@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
+ini_set('session.save_path', realpath(__DIR__ . '/session'));
 session_start();
 
 require_once "orgile.php";
 
-define("JOURNALDIR", "/Users/pfehre/org/journal/");
+define("JOURNALDIR", "C:/Users/User/Documents/Org/journal/");
 
 function handlePostRedirect(): void {
   if(!empty($_POST)) {
@@ -21,7 +22,7 @@ function handlePostRedirect(): void {
 function renderMessage(): void {
   if(isset($_SESSION["msg"])) {
     echo $_SESSION["msg"];
-    unset($_SESSION["msg"]);
+    session_destroy();
   }
 }
 
@@ -31,7 +32,7 @@ function renderTextArea(): void {
 }
 
 function journalFiles(): array {
-  return array_reverse(glob(JOURNALDIR."*.org"));
+  return array_reverse(glob(JOURNALDIR . "*.org"));
 }
 
 function cleanText(string $text): string {
