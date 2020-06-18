@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-ini_set('session.save_path', realpath(__DIR__ . '/session'));
-session_start();
-
 require_once "orgile.php";
+$orgile = new orgile();
 
-define("JOURNALDIR", "C:/Users/User/Documents/Org/journal/");
+session_start();
+define("JOURNALCONFIG", parse_ini_file("journal.ini"));
 
 function handlePostRedirect(): void {
   if(!empty($_POST)) {
@@ -32,7 +31,7 @@ function renderTextArea(): void {
 }
 
 function journalFiles(): array {
-  return array_reverse(glob(JOURNALDIR . "*.org"));
+  return array_reverse(glob(JOURNALCONFIG["path"] . "*.org"));
 }
 
 function cleanText(string $text): string {
@@ -50,7 +49,7 @@ function newEntry(): array {
     );
   }
 
-  $journalFileName = JOURNALDIR . date("Ymd") . ".org";
+  $journalFileName = JOURNALCONFIG["path"] . date("Ymd") . ".org";
 
   $contents = explode("\n", cleanText($content), 2);
   if (!$contents || count($contents) < 2) {
@@ -92,7 +91,7 @@ function readJournal(): string {
 };
 
 function renderJournal(): void {
-  $orgile = new orgile();
+  global $orgile;
   echo $orgile->orgileThis(readJournal());
 }
 
@@ -111,11 +110,18 @@ handlePostRedirect();
        font-family: Calibri, sans-serif;
      }
      #container {
-       width: 600px;
+       max-width: 600px;
        text-align: left;
-       margin: 0px auto;
+       margin: 20px auto;
      }
     </style>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
