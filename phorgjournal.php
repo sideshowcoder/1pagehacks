@@ -5,14 +5,15 @@ $orgile = new orgile();
 
 session_start();
 define("JOURNALCONFIG", parse_ini_file("journal.ini"));
+$journalPath = JOURNALCONFIG["path"];
 
 function handlePostRedirect(): void {
   if(!empty($_POST)) {
     $result = newEntry();
     $_SESSION["msg"] = $result["msg"];
     if($result["success"]) {
-      header( 'HTTP/1.1 303 See Other' );
-      header( 'Location: '.$_SERVER["PHP_SELF"] );
+      header("HTTP/1.1 303 See Other");
+      header("Location: ".$_SERVER["PHP_SELF"]);
       exit();
     }
   }
@@ -31,7 +32,8 @@ function renderTextArea(): void {
 }
 
 function journalFiles(): array {
-  return array_reverse(glob(JOURNALCONFIG["path"] . "*.org"));
+  global $journalPath;
+  return array_reverse(glob("$journalPath*.org"));
 }
 
 function cleanText(string $text): string {
@@ -41,6 +43,7 @@ function cleanText(string $text): string {
 }
 
 function newEntry(): array {
+  global $journalPath;
   $content = $_POST["content"];
   if (empty($content)) {
     return array(
@@ -49,7 +52,8 @@ function newEntry(): array {
     );
   }
 
-  $journalFileName = JOURNALCONFIG["path"] . date("Ymd") . ".org";
+  $fileNameDate = date("Ymd");
+  $journalFileName = "$journalPath$fileNameDate.org";
 
   $contents = explode("\n", cleanText($content), 2);
   if (!$contents || count($contents) < 2) {
@@ -59,16 +63,19 @@ function newEntry(): array {
     );
   }
 
-  $title = "** " . date("h:i") . " " . rtrim(strtok($contents[0], "\n"));
+  $titleTime = date("H:i");
+  $headerDate = date("l, j F Y");
+  $entryTitle = rtrim(strtok($contents[0], "\n"));
+  $title = "** $titleTime $entryTitle";
   $text = $contents[1];
 
   if (!in_array($journalFileName, journalFiles())) {
     // start new file for the day
-    $header = "* " . date("l, j F Y");
+    $header = "* ".$headerDate;
     $fileContent = implode("\n", array($header, $title, $text));
     file_put_contents($journalFileName, $fileContent);
     return array(
-      "msg" => "Added first entry " . date("h:i") . " for day " . date("l, j F Y") . ".",
+      "msg" => "Added first entry $titleTime for day $headerDate.",
       "success" => true
     );
   } else {
@@ -76,7 +83,7 @@ function newEntry(): array {
     $fileContent = implode("\n", array("\n", $title, $text));
     file_put_contents($journalFileName, $fileContent, FILE_APPEND | LOCK_EX);
     return array(
-      "msg" => "Added new entry " . date("h:i") . " for day " . date("l, j F Y") . ".",
+      "msg" => "Added new entry $titleTime for day $headerDate.",
       "success" => true
     );
   }
